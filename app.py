@@ -3,9 +3,12 @@
 #----------------------------------------------------------------------------#
 
 import json
+import requests
+from os import abort
+import re
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import Flask, jsonify, render_template, request, Response, flash, redirect, url_for
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
@@ -13,6 +16,7 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
+import sys
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -232,6 +236,48 @@ def create_venue_form():
 def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
+  error = False
+  body = {}
+  try:
+    name = request.get_json()['name']
+    city = request.get_json()['city']
+    state = request.get_json()['state']
+    address = request.get_json()['address']
+    phone = request.get_json()['phone']
+    image_link = request.get_json()['image_link']
+    facebook_link = request.get_json()['facebook_link']
+
+    venue = Venue(
+      name=name, 
+      city=city,state=state, 
+      address=address, 
+      phone=phone, 
+      image_link=image_link, 
+      facebook_link=facebook_link)
+
+    db.session.add(venue)
+    db.session.commit()
+
+    body['name'] = venue.name
+    body['city'] = venue.city
+    body['state'] = venue.state
+    body['address'] = venue.address
+    body['phone'] = venue.phone
+    body['image_link'] = venue.image_link
+    body['facebook_link'] = venue.facebook_link
+
+  except:
+    db.session.rollback()
+    error = True
+    print(sys.exc_info)
+  finally:
+    db.session.close()
+
+  if error:
+    abort(500)
+  else:
+    return jsonify(body)
+
 
   # on successful db insert, flash success
   flash('Venue ' + request.form['name'] + ' was successfully listed!')
@@ -522,7 +568,10 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run()
+    app.app_context()
+    app.debug = True
+    app.run(debug=True)
+    app.run(host="0.0.0.0", port=3000)
 
 # Or specify port manually:
 '''
