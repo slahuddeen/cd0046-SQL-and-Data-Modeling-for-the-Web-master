@@ -1,6 +1,7 @@
 {% extends 'layouts/main.html' %}
 {% block title %}New Venue{% endblock %}
 {% block content %}
+
   <div class="form-wrapper">
     <form id="venue-form" method="post" class="form" action="/venues/create">
       <h3 class="form-heading">List a new venue <a href="{{ url_for('index') }}" title="Back to homepage"><i class="fa fa-home pull-right"></i></a></h3>
@@ -60,35 +61,27 @@
       <input type="submit" value="Create Venue" class="btn btn-primary btn-lg btn-block">
     </form>
   </div>
+  <script>
+    console.log("from page")
+  
+    this.document.getElementById('venue-form').onsubmit = function (e) {
+      e.preventDefault();
+  
+      fetch('/venues/create', {
+          method: 'POST',
+          body: JSON.stringify({
+              'name': document.getElementById('name').value,
+              'city': document.getElementById('city').value,
+              'state': document.getElementById('state').value,
+              'address': document.getElementById('address').value,
+              'phone': document.getElementById('phone').value,
+              'image_link': document.getElementById('image_link').value,
+              'facebook_link': document.getElementById('facebook_link').value,
+          }),
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      })
+    }
+  </script>
 {% endblock %}
-<script>
-    document.getElementById('venue-form').onsubmit = function (e) {
-    e.preventDefault();
-
-    fetch('/venues/create', {
-        method: 'POST',
-        body: JSON.stringify({
-            'name': document.getElementById('name').value,
-            'city': document.getElementById('city').value
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(function (response) {
-        return response.json();
-    })
-    // // .then(function (jsonResponse) {
-    // //     const liItem = document.createElement('LI');
-
-    // //     liItem.innerHTML = jsonResponse['description'];
-    // //     document.getElementById('todos').appendChild(liItem);
-    // //     document.getElementById('error').className = 'hidden';
-    // //     window.location.reload(true);
-    // // })
-    // .catch(function () {
-    //     document.getElementById('error').className = '';
-    // })
-  }
-          
-</script>
