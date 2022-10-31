@@ -2,7 +2,6 @@
 # Imports
 # ----------------------------------------------------------------------------#
 
-from asyncio.windows_events import NULL
 import json
 import requests
 from os import abort
@@ -151,10 +150,9 @@ def venues():
     areas = Area.query.all()
     data = []
     for area in areas:
-        area.venues = []
         area.venues = Venue.query.filter_by(
             area_id=area.id).order_by('id').all()
-        data += area
+        data.append(area)
     print("done!")
     # join with areas table
     return render_template('pages/venues.html', areas=data)
@@ -288,11 +286,9 @@ def create_venue_submission():
 
         #is the area already in the db, if not then make it.
 
-        area = Area.query.filter_by(
-            city=area.city).filter_by(
-            state=area.state).order_by('id').one()
 
-        if area.id is None:
+        area = Area.query.filter_by(city=city, state=state).first()
+        if area is None:
           area = Area(
             city=city,
             state=state
@@ -329,10 +325,10 @@ def create_venue_submission():
 
     if error:
         flash('there was an error inserting Venue ' +
-              request.form['name'] + '!')
+              body['name'] + '!')
         abort(500)
     else:
-        flash('Venue ' + request.form['name'] + ' was successfully listed!')
+        flash('Venue ' + body['name']  + ' was successfully listed!')
         return render_template('pages/home.html')
         # return jsonify(body)
 
