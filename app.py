@@ -27,8 +27,6 @@ app.config.from_object('config')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# TODO: connect to a local postgresql database
-
 # ----------------------------------------------------------------------------#
 # Models.
 # ----------------------------------------------------------------------------#
@@ -54,6 +52,7 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    num_upcoming_shows = db.Column(db.Integer)
     area_id = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
 
     def __repr__(self):
@@ -90,8 +89,6 @@ class Show(db.Model):
 with app.app_context():
     db.create_all()
 
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
-
 # ----------------------------------------------------------------------------#
 # Filters.
 # ----------------------------------------------------------------------------#
@@ -123,35 +120,16 @@ def index():
 
 @app.route('/venues')
 def venues():
-    # TODO: replace with real venues data.
-    #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
-    data = [{
-        "city": "San Francisco",
-        "state": "CA",
-        "venues": [{
-            "id": 1,
-            "name": "The Musical Hop",
-            "num_upcoming_shows": 0,
-        }, {
-            "id": 3,
-            "name": "Park Square Live Music & Coffee",
-            "num_upcoming_shows": 1,
-        }]
-    }, {
-        "city": "New York",
-        "state": "NY",
-        "venues": [{
-            "id": 2,
-            "name": "The Dueling Pianos Bar",
-            "num_upcoming_shows": 0,
-        }]
-    }]
     # split area and venue in the db to another table
     areas = Area.query.all()
     data = []
     for area in areas:
         area.venues = Venue.query.filter_by(
             area_id=area.id).order_by('id').all()
+        for venue in area.venues:
+          venue.num_upcoming_shows = Show.query.filter_by(
+            venue_id=venue.id).order_by('id').count()
+          
         data.append(area)
     print("done!")
     # join with areas table
