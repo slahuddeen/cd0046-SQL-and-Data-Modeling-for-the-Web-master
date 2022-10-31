@@ -2,6 +2,7 @@
 # Imports
 # ----------------------------------------------------------------------------#
 
+from asyncio.windows_events import NULL
 import json
 import requests
 from os import abort
@@ -40,8 +41,10 @@ class Area(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
-    db.relationship('Venue', backref='list', lazy=True)
+    venues = db.relationship('Venue', backref='list', lazy=True)
 
+    def __repr__(self):
+        return f'<Area ID: {self.id}, city: {self.city}, state: {self.state}, venues: {self.venues}>'
 
 class Venue(db.Model):
     __tablename__ = 'venue'
@@ -146,7 +149,6 @@ def venues():
     }]
     # split area and venue in the db to another table
     areas = Area.query.all()
-    venues = Venue.query.all()
     data = []
     for area in areas:
         area.venues = []
@@ -286,21 +288,33 @@ def create_venue_submission():
 
         #is the area already in the db, if not then make it.
 
-        venue = Venue(
-            name=name,
+        area = Area.query.filter_by(
+            city=area.city).filter_by(
+            state=area.state).order_by('id').one()
+
+        if area.id is None:
+          area = Area(
             city=city,
-            state=state,
-            address=address,
-            phone=phone,
-            image_link=image_link,
-            facebook_link=facebook_link)
+            state=state
+          )
+          db.session.add(area)
+          db.session.commit()
+
+        venue = Venue(
+          name=name,
+          address=address,
+          phone=phone,
+          image_link=image_link,
+          facebook_link=facebook_link,
+          area_id=area.id
+        )
 
         db.session.add(venue)
         db.session.commit()
 
         body['name'] = venue.name
-        body['city'] = venue.city
-        body['state'] = venue.state
+        body['city'] = area.city
+        body['state'] = area.state
         body['address'] = venue.address
         body['phone'] = venue.phone
         body['image_link'] = venue.image_link
