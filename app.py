@@ -52,7 +52,7 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
-    area_id = db.Column(db.Integer, db.ForeignKey('areas.id'), nullable=False)
+    area_id = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
 
     def __repr__(self):
         return f'<Venue ID: {self.id}, name: {self.name}, address: {self.address}, phone: {self.phone}, image_link: {self.image_link}, facebook_link: {self.facebook_link}, area_id: {self.area_id}>'
@@ -285,7 +285,7 @@ def create_venue_submission():
         facebook_link = request.get_json()['facebook_link']
 
         #is the area already in the db, if not then make it.
-        
+
         venue = Venue(
             name=name,
             city=city,
