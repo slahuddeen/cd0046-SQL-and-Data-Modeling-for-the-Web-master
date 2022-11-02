@@ -39,6 +39,7 @@ class Area(db.Model):
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     venues = db.relationship('Venue', backref='list', lazy=True)
+    artists = db.relationship('Artist', backref='list', lazy=True)
 
     def __repr__(self):
         return f'<Area ID: {self.id}, city: {self.city}, state: {self.state}, venues: {self.venues}>'
@@ -72,6 +73,10 @@ class Artist(db.Model):
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    area_id = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=True)
+
+    def __repr__(self):
+        return f'<Venue ID: {self.id}, name: {self.name}, phone: {self.phone}, genres: {self.genres}, image_link: {self.image_link}, facebook_link: {self.facebook_link}, area_id: {self.area_id}>'
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -508,7 +513,7 @@ def create_artist_submission():
           phone=phone,
           image_link=image_link,
           facebook_link=facebook_link
-          
+
         )
 
         db.session.add(artist)
