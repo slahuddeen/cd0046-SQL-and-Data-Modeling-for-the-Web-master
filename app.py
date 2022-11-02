@@ -481,6 +481,62 @@ def create_artist_submission():
     # TODO: insert form data as a new Venue record in the db, instead
     # TODO: modify data to be the data object returned from db insertion
 
+    error = False
+    body = {}
+    try:
+        name = request.get_json()['name']
+        city = request.get_json()['city']
+        state = request.get_json()['state']
+        genres = request.get_json()['genres']
+        phone = request.get_json()['phone']
+        image_link = request.get_json()['image_link']
+        facebook_link = request.get_json()['facebook_link']
+
+        #is the area already in the db, if not then make it.
+        area = Area.query.filter_by(city=city, state=state).first()
+        if area is None:
+          area = Area(
+            city=city,
+            state=state
+          )
+          db.session.add(area)
+          db.session.commit()
+
+        artist = Artist(
+          name=name,
+          genres=genres,
+          phone=phone,
+          image_link=image_link,
+          facebook_link=facebook_link
+          
+        )
+
+        db.session.add(artist)
+        db.session.commit()
+        
+        body['name'] = artist.name
+        body['city'] = area.city
+        body['state'] = area.state
+        body['phone'] = artist.phone
+        body['image_link'] = artist.image_link
+        body['facebook_link'] = artist.facebook_link
+
+    except:
+        db.session.rollback()
+        error = True
+        print(sys.exc_info)
+    finally:
+        db.session.close()
+
+    if error:
+        flash('there was an error inserting Artist ' +
+              body['name'] + '!')
+        abort(500)
+    else:
+        flash('Artist ' + body['name']  + ' was successfully listed!')
+        #return render_template('pages/home.html')
+        return jsonify(body)
+
     # on successful db insert, flash success
     flash('Artist ' + request.form['name'] + ' was successfully listed!')
     # TODO: on unsuccessful db insert, flash an error instead.
