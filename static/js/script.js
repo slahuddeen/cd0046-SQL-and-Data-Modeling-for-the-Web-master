@@ -4,3 +4,12 @@ window.parseISOString = function parseISOString(s) {
 };
 
 console.log("from script");
+console.log (document.getElementById("delete"))
+deleteBtn = document.getElementById("delete")
+deleteBtn.onclick = function(e) {
+  console.log("Delete event: ", e);
+  const todoId = deleteBtn.dataset.id;
+  fetch('/venues/'+ todoId ,{
+      method: 'DELETE'
+  })
+  };
