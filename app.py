@@ -489,7 +489,7 @@ def edit_venue(venue_id):
     if error:
         abort(500)
     else:
-        return render_template('forms/edit_venue.html', form=body, venue=venue, area=area)
+        return render_template('forms/edit_venue.html', form=form, venue=venue, area=area, body=body)
     # TODO: populate form with values from venue with ID <venue_id>
 
 
