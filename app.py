@@ -497,18 +497,54 @@ def edit_venue(venue_id):
 def edit_venue_submission(venue_id):
     # TODO: take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
-    complete = request.get_json()['checked']
-    complete = request.get_json()['checked']
-    complete = request.get_json()['checked']
-    complete = request.get_json()['checked']
-    complete = request.get_json()['checked']
-    complete = request.get_json()['checked']
-    complete = request.get_json()['checked']
-    complete = request.get_json()['checked']
-    complete = request.get_json()['checked']
-    complete = request.get_json()['checked']
-    complete = request.get_json()['checked']
-    complete = request.get_json()['checked']
+    name = request.get_json()['name']
+    genres = request.get_json()['genres']
+    address = request.get_json()['address']
+    city = request.get_json()['city']
+    state = request.get_json()['state']
+    phone = request.get_json()['phone']
+    website = request.get_json()['website']
+    facebook_link = request.get_json()['facebook_link']
+    seeking_talent = request.get_json()['seeking_talent']
+    seeking_description = request.get_json()['seeking_description']
+    image_link = request.get_json()['image_link']
+
+    error= False
+    try:
+        completed = request.get_json()['completed']
+        venue = Venue.query.get(venue_id)
+        area = Area.query.get(venue.area_id)
+
+        area = Area.query.filter_by(city=city, state=state).first()
+        if area is None:
+          area = Area(
+            city=city,
+            state=state
+          )
+          db.session.add(area)
+          db.session.commit()
+
+        venue.name = name
+        venue.genres = genres
+        venue.area_id = area.id
+        venue.address = address
+        venue.phone = phone
+        venue.website = website
+        venue.facebook_link = facebook_link
+        venue.seeking_talent = seeking_talent
+        venue.seeking_description = seeking_description
+        venue.image_link = image_link
+          
+        db.session.add(venue)
+        db.session.commit()
+    except:
+        db.session.rollback()
+    finally:
+        db.session.close()
+    if error:
+        abort(500)
+    return '', 200
+
     return redirect(url_for('show_venue', venue_id=venue_id))
 
 #  Create Artist
