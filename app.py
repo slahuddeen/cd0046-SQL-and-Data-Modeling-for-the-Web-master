@@ -51,16 +51,17 @@ class Venue(db.Model):
     name = db.Column(db.String)
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
+    genres = db.Column(db.String(500))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     num_upcoming_shows = db.Column(db.Integer)
+    seeking_talent = db.Column(db.Boolean)
+    website = db.Column(db.String(120))
+    seeking_description = db.Column(db.String(500))
     area_id = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
 
     def __repr__(self):
         return f'<Venue ID: {self.id}, name: {self.name}, address: {self.address}, phone: {self.phone}, image_link: {self.image_link}, facebook_link: {self.facebook_link}, area_id: {self.area_id}>'
-
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
-
 
 class Artist(db.Model):
     __tablename__ = 'artist'
@@ -75,8 +76,6 @@ class Artist(db.Model):
 
     def __repr__(self):
         return f'<Venue ID: {self.id}, name: {self.name}, phone: {self.phone}, genres: {self.genres}, image_link: {self.image_link}, facebook_link: {self.facebook_link}, area_id: {self.area_id}>'
-
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 
 class Show(db.Model):
@@ -240,7 +239,14 @@ def create_venue_submission():
         phone = request.get_json()['phone']
         image_link = request.get_json()['image_link']
         facebook_link = request.get_json()['facebook_link']
+        genres = request.get_json()['genres']
+        seeking_talent = request.get_json()['seeking_talent']
+        seeking_description = request.get_json()['seeking_description']
 
+        if seeking_talent == 'y':
+            seeking_talent = True
+        else:
+            seeking_talent =False
         #is the area already in the db, if not then make it.
         area = Area.query.filter_by(city=city, state=state).first()
         if area is None:
@@ -257,7 +263,10 @@ def create_venue_submission():
           phone=phone,
           image_link=image_link,
           facebook_link=facebook_link,
-          area_id=area.id
+          area_id=area.id,
+          genres=genres,
+          seeking_talent=seeking_talent,
+          seeking_description=seeking_description
         )
 
         db.session.add(venue)
@@ -280,7 +289,7 @@ def create_venue_submission():
 
     if error:
         flash('there was an error inserting Venue ' +
-              body['name'] + '!')
+              body['name'])
         abort(500)
     else:
         flash('Venue ' + body['name']  + ' was successfully listed!')
@@ -309,7 +318,6 @@ def delete_venue(venue_id):
 
 @app.route('/artists')
 def artists():
-    # TODO: replace with real data returned from querying the database
     data = Artist.query.all()
     return render_template('pages/artists.html', artists=data)
 
@@ -458,14 +466,49 @@ def edit_venue(venue_id):
         "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
         "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60"
     }
+    
+    error = False
+    body={}
+    try:
+        venue = Venue.query.get(venue_id)
+        area = Area.query.get(venue.area_id)
+        body['name'] = venue.name
+        body['genres'] = venue.genres
+        body['address'] = venue.address
+        body['city'] = area.city
+        body['state'] = area.state
+        body['phone'] = venue.phone
+        body['website'] = venue.website
+        body['facebook_link'] = venue.facebook_link
+        body['seeking_talent'] = venue.seeking_talent
+        body['seeking_description'] = venue.seeking_description
+        body['image_link'] = venue.image_link
+    except:
+        error = True
+        print(sys.exc_info())
+    if error:
+        abort(500)
+    else:
+        return render_template('forms/edit_venue.html', form=body, venue=venue, area=area)
     # TODO: populate form with values from venue with ID <venue_id>
-    return render_template('forms/edit_venue.html', form=form, venue=venue)
 
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
     # TODO: take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
+    complete = request.get_json()['checked']
+    complete = request.get_json()['checked']
+    complete = request.get_json()['checked']
+    complete = request.get_json()['checked']
+    complete = request.get_json()['checked']
+    complete = request.get_json()['checked']
+    complete = request.get_json()['checked']
+    complete = request.get_json()['checked']
+    complete = request.get_json()['checked']
+    complete = request.get_json()['checked']
+    complete = request.get_json()['checked']
+    complete = request.get_json()['checked']
     return redirect(url_for('show_venue', venue_id=venue_id))
 
 #  Create Artist
