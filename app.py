@@ -316,18 +316,24 @@ def artists():
 
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
-    # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-    # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
-    # search for "band" should return "The Wild Sax Band".
-    response = {
-        "count": 1,
-        "data": [{
-            "id": 4,
-            "name": "Guns N Petals",
-            "num_upcoming_shows": 0,
-        }]
-    }
-    return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
+  search = request.form.get('search_term', '')
+  query = db.session.query(Artist).filter(Artist.name.ilike('%' + search + '%')).all()
+  count  = len(query)
+  data = []
+
+  for row in query:
+    data.append({
+      "id": row.id,
+      "name": row.name,
+      "num_upcoming_shows":1
+    })
+
+    response={
+    "count": count,
+    "data": data
+  }
+
+  return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
 
 @app.route('/artists/<int:artist_id>')
@@ -431,13 +437,10 @@ def edit_venue(venue_id):
         abort(500)
     else:
         return render_template('forms/edit_venue.html', form=form, venue=venue, area=area, body=body)
-    # TODO: populate form with values from venue with ID <venue_id>
 
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
-    # TODO: take values from the form submitted, and update existing
-    # venue record with ID <venue_id> using the new attributes
     name = request.get_json()['name']
     genres = request.get_json()['genres']
     address = request.get_json()['address']
@@ -624,9 +627,6 @@ def create_show_submission():
   finally:
     db.session.close()
   if error:
-    # TODO: on unsuccessful db insert, flash an error instead. **DONE
-    # e.g., flash('An error occurred. Show could not be listed.')
-    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     flash(error_message)
     abort(500)
   else:
