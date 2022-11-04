@@ -509,9 +509,13 @@ def edit_venue_submission(venue_id):
     seeking_description = request.get_json()['seeking_description']
     image_link = request.get_json()['image_link']
 
+    if seeking_talent == 'y':
+        seeking_talent = True
+    else:
+        seeking_talent =False
+
     error= False
     try:
-        completed = request.get_json()['completed']
         venue = Venue.query.get(venue_id)
         area = Area.query.get(venue.area_id)
 

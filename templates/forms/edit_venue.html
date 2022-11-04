@@ -65,10 +65,10 @@
   <script>
     console.log("from page")
   
-    this.document.getElementById('venue-form').onsubmit = function (e) {
+    this.document.getElementById('form').onsubmit = function (e) {
       e.preventDefault();
   
-      fetch(this.document.getElementById('form').action, {
+      fetch(document.getElementById('form').action, {
           method: 'POST',
           body: JSON.stringify({
               'name': document.getElementById('name').value,
@@ -76,6 +76,7 @@
               'state': document.getElementById('state').value,
               'address': document.getElementById('address').value,
               'phone': document.getElementById('phone').value,
+              'website': document.getElementById('website_link').value,
               'genres': document.getElementById("genres").value,
               'seeking_talent': document.getElementById("seeking_talent").value,
               'seeking_description': document.getElementById("seeking_description").value,
