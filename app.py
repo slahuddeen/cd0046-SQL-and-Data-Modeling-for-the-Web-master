@@ -574,6 +574,16 @@ def not_found_error(error):
     return render_template('errors/404.html'), 404
 
 
+@app.errorhandler(400)
+def server_error(error):
+    return render_template('errors/400.html'), 400
+
+
+@app.errorhandler(405)
+def server_error(error):
+    return render_template('errors/405.html'), 405
+
+
 @app.errorhandler(500)
 def server_error(error):
     return render_template('errors/500.html'), 500
